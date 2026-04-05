@@ -1,2 +1,12 @@
-﻿// See https://aka.ms/new-console-template for more information
-Console.WriteLine("Hello, World!");
+using GameProject.Core;
+
+namespace GameProject;
+
+class Program
+{
+    static void Main(string[] args)
+    {
+        var game = new Game();
+        game.Start();
+    }
+}
