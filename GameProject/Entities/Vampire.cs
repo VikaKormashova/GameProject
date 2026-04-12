@@ -6,6 +6,10 @@ public class Vampire : Enemy
     {
     }
     
+    private Vampire(Vampire other) : base(other)
+    {
+    }
+    
     public override void Attack(Player target)
     {
         Console.WriteLine($"{Name} кусает {target.Name}!");
@@ -21,5 +25,10 @@ public class Vampire : Enemy
     public override string GetDescription()
     {
         return "Ночное создание, восстанавливающее здоровье от атак.";
+    }
+    
+    public override Enemy Clone()
+    {
+        return new Vampire(this);
     }
 }

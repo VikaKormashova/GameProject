@@ -8,6 +8,11 @@ public class Ghost : Enemy
     {
     }
     
+    private Ghost(Ghost other) : base(other)
+    {
+        _random = new Random();
+    }
+    
     public override void Attack(Player target)
     {
         if (_random.Next(100) < 40)
@@ -24,5 +29,10 @@ public class Ghost : Enemy
     public override string GetDescription()
     {
         return "Таинственное создание. Может стать неосязаемым.";
+    }
+    
+    public override Enemy Clone()
+    {
+        return new Ghost(this);
     }
 }

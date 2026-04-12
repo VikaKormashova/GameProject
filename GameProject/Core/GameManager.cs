@@ -46,13 +46,14 @@ public class GameManager
     public void Run()
     {
         _isRunning = true;
-        Console.WriteLine($"=== ИГРА ЗАПУЩЕНА ===");
-        Console.WriteLine($"Сложность: {GameDifficulty}");
-        Console.WriteLine($"Размер карты: {MapWidth}x{MapHeight}\n");
+        Console.Clear();
+        Console.WriteLine("╔══════════════════════════════════════╗");
+        Console.WriteLine("║           TURN-BASED RPG             ║");
+        Console.WriteLine("╚══════════════════════════════════════╝\n");
         
         StartNewGame("Hero");
         
-        Console.WriteLine("=== ДЕМОНСТРАЦИЯ ФАБРИЧНОГО МЕТОДА ===\n");
+        Console.WriteLine("=== 1. ФАБРИЧНЫЙ МЕТОД ===\n");
         
         List<EnemyFactory> factories = new List<EnemyFactory>
         {
@@ -67,8 +68,30 @@ public class GameManager
             ActiveEnemies.Add(enemy);
         }
         
+        Console.WriteLine($"\nСоздано врагов через фабрики: {ActiveEnemies.Count}\n");
+        
+        Console.WriteLine("=== 2. ПРОТОТИП (КЛОНИРОВАНИЕ) ===\n");
+        
+        Dragon dragonPrototype = new Dragon();
+        Console.WriteLine($"Создан прототип: {dragonPrototype.Name} (HP: {dragonPrototype.Health})");
+        
+        Console.WriteLine("Клонируем дракона 2 раза:");
+        Enemy clonedDragon1 = dragonPrototype.Clone();
+        Enemy clonedDragon2 = dragonPrototype.Clone();
+        ActiveEnemies.Add(clonedDragon1);
+        ActiveEnemies.Add(clonedDragon2);
+        
+        Console.WriteLine($"  Клон 1: HP {clonedDragon1.Health}");
+        Console.WriteLine($"  Клон 2: HP {clonedDragon2.Health}");
+        
+        Console.WriteLine("\n=== ДОКАЗАТЕЛЬСТВО ГЛУБОКОГО КОПИРОВАНИЯ ===");
+        clonedDragon1.TakeDamage(40);
+        Console.WriteLine($"Клон 1 после урона: {clonedDragon1.Health} HP");
+        Console.WriteLine($"Оригинал (прототип): {dragonPrototype.Health} HP (не изменился!)");
+        
         Console.WriteLine($"\nВсего врагов: {ActiveEnemies.Count}\n");
         Console.WriteLine("=== БОЙ НАЧАЛСЯ! ===\n");
+        Console.WriteLine("Нажмите ESC для выхода...\n");
         
         while (_isRunning)
         {
