@@ -1,22 +1,30 @@
-using GameProject.Entities;
-
 namespace GameProject.Entities;
 
-public class Enemy : Entity
+public abstract class Enemy
 {
-    public int Damage { get; set; }
-    public int ExperienceReward { get; set; }
+    public string Name { get; protected set; }
+    public int Health { get; protected set; }
+    public int MaxHealth { get; protected set; }
+    public int Damage { get; protected set; }
+    public int ExperienceReward { get; protected set; }
     
-    public Enemy(string name, int health, int damage, int expReward) 
-        : base(name, health)
+    protected Enemy(string name, int maxHealth, int damage, int expReward)
     {
+        Name = name;
+        MaxHealth = maxHealth;
+        Health = maxHealth;
         Damage = damage;
         ExperienceReward = expReward;
     }
     
-    public void Attack(Player target)
+    public abstract void Attack(Player target);
+    public abstract string GetDescription();
+    
+    public virtual void TakeDamage(int amount)
     {
-        Console.WriteLine($"{Name} атакует {target.Name} и наносит {Damage} урона!");
-        target.TakeDamage(Damage);
+        Health -= amount;
+        if (Health < 0) Health = 0;
     }
+    
+    public bool IsAlive() => Health > 0;
 }

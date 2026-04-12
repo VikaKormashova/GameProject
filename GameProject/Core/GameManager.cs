@@ -1,4 +1,5 @@
 using GameProject.Entities;
+using GameProject.Factories;
 
 namespace GameProject.Core;
 
@@ -48,7 +49,26 @@ public class GameManager
         Console.WriteLine($"=== ИГРА ЗАПУЩЕНА ===");
         Console.WriteLine($"Сложность: {GameDifficulty}");
         Console.WriteLine($"Размер карты: {MapWidth}x{MapHeight}\n");
-        Console.WriteLine("Нажмите ESC для выхода...");
+        
+        StartNewGame("Hero");
+        
+        Console.WriteLine("=== ДЕМОНСТРАЦИЯ ФАБРИЧНОГО МЕТОДА ===\n");
+        
+        List<EnemyFactory> factories = new List<EnemyFactory>
+        {
+            new GhostFactory(),
+            new VampireFactory(),
+            new DragonFactory()
+        };
+        
+        foreach (var factory in factories)
+        {
+            Enemy enemy = factory.SpawnEnemy();
+            ActiveEnemies.Add(enemy);
+        }
+        
+        Console.WriteLine($"\nВсего врагов: {ActiveEnemies.Count}\n");
+        Console.WriteLine("=== БОЙ НАЧАЛСЯ! ===\n");
         
         while (_isRunning)
         {
@@ -75,7 +95,6 @@ public class GameManager
     {
         ActiveEnemies = enemies;
         IsInCombat = true;
-        Console.WriteLine($"\n=== БОЙ НАЧАЛСЯ! ===\nВрагов: {enemies.Count}");
     }
     
     public void EndCombat()
