@@ -36,6 +36,7 @@ public class Player : Entity
     
     public void Heal(int amount)
     {
+        if (!IsAlive()) return;
         Health += amount;
         if (Health > MaxHealth) Health = MaxHealth;
     }
