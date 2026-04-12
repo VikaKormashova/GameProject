@@ -1,5 +1,6 @@
 using GameProject.Entities;
 using GameProject.Factories;
+using GameProject.Weapons;
 
 namespace GameProject.Core;
 
@@ -87,9 +88,29 @@ public class GameManager
         Console.WriteLine("\n=== ДОКАЗАТЕЛЬСТВО ГЛУБОКОГО КОПИРОВАНИЯ ===");
         clonedDragon1.TakeDamage(40);
         Console.WriteLine($"Клон 1 после урона: {clonedDragon1.Health} HP");
-        Console.WriteLine($"Оригинал (прототип): {dragonPrototype.Health} HP (не изменился!)");
+        Console.WriteLine($"Оригинал (прототип): {dragonPrototype.Health} HP (не изменился!)\n");
         
-        Console.WriteLine($"\nВсего врагов: {ActiveEnemies.Count}\n");
+        Console.WriteLine("=== 3. ДЕКОРАТОР (УЛУЧШЕНИЕ ОРУЖИЯ) ===\n");
+        
+        IWeapon sword = new Sword(10);
+        Console.WriteLine($"Базовое оружие: {sword.GetDescription()} => {sword.GetDamage()} урона");
+        
+        IWeapon fireSword = new FireDamageDecorator(sword, 5);
+        Console.WriteLine($"Огненный меч: {fireSword.GetDescription()} => {fireSword.GetDamage()} урона");
+        
+        IWeapon iceFireSword = new IceDamageDecorator(fireSword, 3);
+        Console.WriteLine($"Ледяной огненный меч: {iceFireSword.GetDescription()} => {iceFireSword.GetDamage()} урона");
+        
+        IWeapon critIceFireSword = new CriticalStrikeDecorator(iceFireSword, 2.0);
+        Console.WriteLine($"Критический ледяной огненный меч: {critIceFireSword.GetDescription()} => {critIceFireSword.GetDamage()} урона");
+        
+        Console.WriteLine("\n=== ДОКАЗАТЕЛЬСТВО ПОРЯДКА ===");
+        IWeapon sword2 = new Sword(10);
+        IWeapon critFirst = new CriticalStrikeDecorator(sword2, 2.0);
+        IWeapon fireThenCrit = new FireDamageDecorator(critFirst, 5);
+        Console.WriteLine($"Сначала крит, потом огонь: {fireThenCrit.GetDescription()} => {fireThenCrit.GetDamage()} урона\n");
+        
+        Console.WriteLine($"Всего врагов: {ActiveEnemies.Count}\n");
         Console.WriteLine("=== БОЙ НАЧАЛСЯ! ===\n");
         Console.WriteLine("Нажмите ESC для выхода...\n");
         
