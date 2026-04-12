@@ -6,6 +6,10 @@ public class Dragon : Enemy
     {
     }
     
+    private Dragon(Dragon other) : base(other)
+    {
+    }
+    
     public override void Attack(Player target)
     {
         Console.WriteLine($"{Name} извергает пламя на {target.Name}!");
@@ -17,5 +21,10 @@ public class Dragon : Enemy
     public override string GetDescription()
     {
         return "Могучий дракон. Очень опасен!";
+    }
+    
+    public override Enemy Clone()
+    {
+        return new Dragon(this);
     }
 }

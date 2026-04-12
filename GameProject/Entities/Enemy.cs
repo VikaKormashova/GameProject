@@ -17,6 +17,15 @@ public abstract class Enemy
         ExperienceReward = expReward;
     }
     
+    protected Enemy(Enemy other)
+    {
+        Name = other.Name;
+        MaxHealth = other.MaxHealth;
+        Health = other.Health;
+        Damage = other.Damage;
+        ExperienceReward = other.ExperienceReward;
+    }
+    
     public abstract void Attack(Player target);
     public abstract string GetDescription();
     
@@ -27,4 +36,6 @@ public abstract class Enemy
     }
     
     public bool IsAlive() => Health > 0;
+    
+    public abstract Enemy Clone();
 }
