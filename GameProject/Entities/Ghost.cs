@@ -2,20 +2,19 @@ namespace GameProject.Entities;
 
 public class Ghost : Enemy
 {
+    private const int GhostHealth = 35;
+    private const int GhostDamage = 5;
+    private const int GhostExpReward = 25;
+    private const int DodgeChancePercent = 40;
     private Random _random = new Random();
     
-    public Ghost() : base("Призрак", 35, 5, 25)
+    public Ghost() : base("Призрак", GhostHealth, GhostDamage, GhostExpReward)
     {
-    }
-    
-    private Ghost(Ghost other) : base(other)
-    {
-        _random = new Random();
     }
     
     public override void Attack(Player target)
     {
-        if (_random.Next(100) < 40)
+        if (_random.Next(100) < DodgeChancePercent)
         {
             Console.WriteLine($"{Name} стал неосязаемым и атакует из тени!");
         }
@@ -34,5 +33,10 @@ public class Ghost : Enemy
     public override Enemy Clone()
     {
         return new Ghost(this);
+    }
+    
+    private Ghost(Ghost other) : base(other)
+    {
+        _random = new Random();
     }
 }

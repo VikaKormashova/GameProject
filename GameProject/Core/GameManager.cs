@@ -7,8 +7,17 @@ namespace GameProject.Core;
 
 public class GameManager
 {
+    private const int DefaultMapWidth = 20;
+    private const int DefaultMapHeight = 15;
+    private const int DemoDamageAmount = 40;
+    private const int GameLoopDelayMilliseconds = 100;
+    private const int DefaultSwordDamage = 10;
+    private const int FireBonus = 5;
+    private const int IceBonus = 3;
+    private const double CriticalMultiplier = 2.0;
+    
     private static GameManager? _instance;
-    private static readonly object _lock = new object();
+    private static readonly object _lockObject = new object();
     private bool _isRunning;
     
     public int MapWidth { get; set; }
@@ -24,8 +33,8 @@ public class GameManager
     private GameManager()
     {
         ActiveEnemies = new List<Enemy>();
-        MapWidth = 20;
-        MapHeight = 15;
+        MapWidth = DefaultMapWidth;
+        MapHeight = DefaultMapHeight;
         GameDifficulty = Difficulty.Normal;
         _combat = new CombatFacade();
     }
@@ -36,7 +45,7 @@ public class GameManager
         {
             if (_instance == null)
             {
-                lock (_lock)
+                lock (_lockObject)
                 {
                     if (_instance == null)
                     {
@@ -51,34 +60,94 @@ public class GameManager
     public void Run()
     {
         _isRunning = true;
+        ShowTitle();
+        StartNewGame("Hero");
+        
+        DemonstrateFactoryMethod();
+        DemonstratePrototype();
+        DemonstrateFacade();
+        
+        StartGameLoop();
+    }
+    
+    private void ShowTitle()
+    {
         Console.Clear();
         Console.WriteLine("╔══════════════════════════════════════╗");
         Console.WriteLine("║           TURN-BASED RPG             ║");
         Console.WriteLine("╚══════════════════════════════════════╝\n");
+    }
+    
+    private void DemonstrateFactoryMethod()
+    {
+        Console.WriteLine("=== 1. ФАБРИЧНЫЙ МЕТОД ===\n");
         
-        StartNewGame("Hero");
+        List<EnemyFactory> factories = new List<EnemyFactory>
+        {
+            new GhostFactory(),
+            new VampireFactory(),
+            new DragonFactory()
+        };
         
-        Console.WriteLine("=== ДЕМОНСТРАЦИЯ ФАСАДА ===\n");
+        foreach (var factory in factories)
+        {
+            Enemy enemy = factory.SpawnEnemy();
+            ActiveEnemies.Add(enemy);
+        }
         
-        var dragon = new Dragon();
-        Console.WriteLine($"Создан враг: {dragon.Name} (HP: {dragon.Health})");
+        Console.WriteLine($"\nСоздано врагов через фабрики: {ActiveEnemies.Count}\n");
+    }
+    
+    private void DemonstratePrototype()
+    {
+        Console.WriteLine("=== 2. ПРОТОТИП (КЛОНИРОВАНИЕ) ===\n");
         
-        _combat.ProcessAttack(CurrentPlayer!, dragon, 15);
-        Console.WriteLine($"Здоровье дракона: {dragon.Health}\n");
+        Dragon dragonPrototype = new Dragon();
+        Console.WriteLine($"Создан прототип: {dragonPrototype.Name} (HP: {dragonPrototype.Health})");
         
-        _combat.ProcessEnemyAttack(dragon, CurrentPlayer!);
-        Console.WriteLine($"Здоровье игрока: {CurrentPlayer!.Health}\n");
+        Console.WriteLine("Клонируем дракона 2 раза:");
+        Enemy clonedDragon1 = dragonPrototype.Clone();
+        Enemy clonedDragon2 = dragonPrototype.Clone();
+        ActiveEnemies.Add(clonedDragon1);
+        ActiveEnemies.Add(clonedDragon2);
         
-        Console.WriteLine("=== ДЕМОНСТРАЦИЯ ПРОСТОТЫ ФАСАДА ===\n");
-        Console.WriteLine("Раньше для атаки нужно было:\n" +
-                         "  - Рассчитать крит\n" +
-                         "  - Рассчитать урон\n" +
-                         "  - Применить броню\n" +
-                         "  - Воспроизвести эффекты\n" +
-                         "  - Нанести урон\n");
-        Console.WriteLine("Теперь всё это в одном методе:\n" +
-                         "  _combat.ProcessAttack(attacker, target, damage)\n");
+        Console.WriteLine($"  Клон 1: HP {clonedDragon1.Health}");
+        Console.WriteLine($"  Клон 2: HP {clonedDragon2.Health}");
         
+        Console.WriteLine("\n=== ДОКАЗАТЕЛЬСТВО ГЛУБОКОГО КОПИРОВАНИЯ ===");
+        clonedDragon1.TakeDamage(DemoDamageAmount);
+        Console.WriteLine($"Клон 1 после урона: {clonedDragon1.Health} HP");
+        Console.WriteLine($"Оригинал (прототип): {dragonPrototype.Health} HP (не изменился!)\n");
+    }
+    
+    private void DemonstrateFacade()
+    {
+        Console.WriteLine("=== 3. ДЕКОРАТОР (УЛУЧШЕНИЕ ОРУЖИЯ) ===\n");
+        
+        IWeapon sword = new Sword(DefaultSwordDamage);
+        Console.WriteLine($"Базовое оружие: {sword.GetDescription()} => {sword.GetDamage()} урона");
+        
+        IWeapon fireSword = new FireDamageDecorator(sword, FireBonus);
+        Console.WriteLine($"Огненный меч: {fireSword.GetDescription()} => {fireSword.GetDamage()} урона");
+        
+        IWeapon iceFireSword = new IceDamageDecorator(fireSword, IceBonus);
+        Console.WriteLine($"Ледяной огненный меч: {iceFireSword.GetDescription()} => {iceFireSword.GetDamage()} урона");
+        
+        IWeapon critIceFireSword = new CriticalStrikeDecorator(iceFireSword, CriticalMultiplier);
+        Console.WriteLine($"Критический ледяной огненный меч: {critIceFireSword.GetDescription()} => {critIceFireSword.GetDamage()} урона");
+        
+        Console.WriteLine("\n=== ДОКАЗАТЕЛЬСТВО ПОРЯДКА ===");
+        IWeapon sword2 = new Sword(DefaultSwordDamage);
+        IWeapon critFirst = new CriticalStrikeDecorator(sword2, CriticalMultiplier);
+        IWeapon fireThenCrit = new FireDamageDecorator(critFirst, FireBonus);
+        Console.WriteLine($"Сначала крит, потом огонь: {fireThenCrit.GetDescription()} => {fireThenCrit.GetDamage()} урона\n");
+        
+        Console.WriteLine($"Всего врагов: {ActiveEnemies.Count}\n");
+        Console.WriteLine("=== БОЙ НАЧАЛСЯ! ===\n");
+    }
+    
+    private void StartGameLoop()
+    {
         Console.WriteLine("Нажмите ESC для выхода...\n");
         
         while (_isRunning)
@@ -92,7 +161,7 @@ public class GameManager
                     Console.WriteLine("\n=== ИГРА ЗАВЕРШЕНА ===");
                 }
             }
-            Thread.Sleep(100);
+            Thread.Sleep(GameLoopDelayMilliseconds);
         }
     }
     

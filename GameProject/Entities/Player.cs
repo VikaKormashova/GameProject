@@ -4,6 +4,10 @@ namespace GameProject.Entities;
 
 public class Player : Entity
 {
+    private const int BaseExperienceForLevelUp = 100;
+    private const int ExperienceIncreasePerLevel = 25;
+    private const int HealthIncreasePerLevel = 10;
+    
     public int Experience { get; private set; }
     public int Level { get; private set; }
     public int ExperienceToNextLevel { get; private set; }
@@ -12,7 +16,7 @@ public class Player : Entity
     {
         Experience = 0;
         Level = 1;
-        ExperienceToNextLevel = 100;
+        ExperienceToNextLevel = BaseExperienceForLevelUp;
     }
     
     public void GainExperience(int amount)
@@ -28,9 +32,9 @@ public class Player : Entity
     {
         Experience -= ExperienceToNextLevel;
         Level++;
-        MaxHealth += 10;
+        MaxHealth += HealthIncreasePerLevel;
         Health = MaxHealth;
-        ExperienceToNextLevel = 100 + (Level - 1) * 25;
+        ExperienceToNextLevel = BaseExperienceForLevelUp + (Level - 1) * ExperienceIncreasePerLevel;
         Console.WriteLine($"{Name} достиг {Level} уровня!");
     }
     
