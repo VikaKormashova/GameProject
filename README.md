@@ -9,6 +9,18 @@
 Игрок исследует подземелья, сражается с врагами и прокачивает персонажа. 
 Проект создан для изучения Git и паттернов проектирования.
 
+## Архитектура 
+
+| Паттерн | Где используется | Классы |
+|---------|------------------|--------|
+| **Singleton** | Единый управляющий класс | `GameManager` |
+| **Factory Method** | Создание врагов | `EnemyFactory`, `GhostFactory`, `VampireFactory`, `DragonFactory` |
+| **Prototype** | Клонирование врагов | `Enemy.Clone()`, `Ghost`, `Vampire`, `Dragon` |
+| **Decorator** | Улучшение оружия | `WeaponDecorator`, `FireDamageDecorator`, `IceDamageDecorator`, `CriticalStrikeDecorator` |
+| **Facade** | Упрощение боя | `CombatFacade` |
+
 ## Запуск
 
-*В разработке*
+```bash
+cd GameProject
+dotnet run
