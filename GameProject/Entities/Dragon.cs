@@ -11,7 +11,7 @@ public class Dragon : Enemy
     {
     }
     
-    private Dragon(Dragon other) : base(other)
+    public Dragon(Dragon other) : base(other)
     {
     }
     

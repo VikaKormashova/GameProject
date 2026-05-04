@@ -11,7 +11,7 @@ public class Vampire : Enemy
     {
     }
     
-    private Vampire(Vampire other) : base(other)
+    public Vampire(Vampire other) : base(other)
     {
     }
     
