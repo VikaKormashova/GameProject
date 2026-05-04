@@ -3,7 +3,7 @@ namespace GameProject.Entities;
 public abstract class Entity
 {
     public string Name { get; set; }
-    public int Health { get; set; }
+    public virtual int Health { get; set; }
     public int MaxHealth { get; set; }
     
     protected Entity(string name, int maxHealth)

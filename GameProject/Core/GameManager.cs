@@ -3,6 +3,7 @@ using GameProject.Factories;
 using GameProject.Weapons;
 using GameProject.Combat;
 using GameProject.Strategies;
+using GameProject.UI;
 
 namespace GameProject.Core;
 
@@ -30,6 +31,7 @@ public class GameManager
     public bool IsInCombat { get; set; }
     
     private CombatFacade _combat;
+    private ConsoleHUD? _hud;
     
     private GameManager()
     {
@@ -64,10 +66,18 @@ public class GameManager
         ShowTitle();
         StartNewGame("Hero");
         
+        _hud = new ConsoleHUD(CurrentPlayer!);
+        
         DemonstrateFactoryMethod();
         DemonstratePrototype();
         DemonstrateFacade();
         DemonstrateStrategyPattern();
+        
+        Console.WriteLine("\n=== 5. НАБЛЮДАТЕЛЬ (OBSERVER) ===\n");
+        Console.WriteLine("UI автоматически обновляется через события!\n");
+        Console.WriteLine("Нажмите D - получить урон (UI обновится автоматически)");
+        Console.WriteLine("Нажмите E - получить опыт (UI обновится автоматически)");
+        Console.WriteLine("Нажмите ESC - выход\n");
         
         StartGameLoop();
     }
@@ -145,7 +155,6 @@ public class GameManager
         Console.WriteLine($"Сначала крит, потом огонь: {fireThenCrit.GetDescription()} => {fireThenCrit.GetDamage()} урона\n");
         
         Console.WriteLine($"Всего врагов: {ActiveEnemies.Count}\n");
-        Console.WriteLine("=== БОЙ НАЧАЛСЯ! ===\n");
     }
     
     private void DemonstrateStrategyPattern()
@@ -178,17 +187,29 @@ public class GameManager
     
     private void StartGameLoop()
     {
-        Console.WriteLine("Нажмите ESC для выхода...\n");
-        
         while (_isRunning)
         {
             if (Console.KeyAvailable)
             {
                 var key = Console.ReadKey(true);
+                
                 if (key.Key == ConsoleKey.Escape)
                 {
                     _isRunning = false;
                     Console.WriteLine("\n=== ИГРА ЗАВЕРШЕНА ===");
+                }
+                else if (key.Key == ConsoleKey.D && CurrentPlayer != null)
+                {
+                    CurrentPlayer.TakeDamage(10);  // UI обновится автоматически через событие!
+                    
+                    if (!CurrentPlayer.IsAlive())
+                    {
+                        _isRunning = false;
+                    }
+                }
+                else if (key.Key == ConsoleKey.E && CurrentPlayer != null)
+                {
+                    CurrentPlayer.GainExperience(50);  // UI обновится автоматически через событие!
                 }
             }
             Thread.Sleep(GameLoopDelayMilliseconds);
