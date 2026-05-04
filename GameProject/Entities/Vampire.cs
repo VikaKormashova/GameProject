@@ -2,7 +2,12 @@ namespace GameProject.Entities;
 
 public class Vampire : Enemy
 {
-    public Vampire() : base("Вампир", 50, 8, 45)
+    private const int VampireHealth = 50;
+    private const int VampireDamage = 8;
+    private const int VampireExpReward = 45;
+    private const int LifeStealDivisor = 2;
+    
+    public Vampire() : base("Вампир", VampireHealth, VampireDamage, VampireExpReward)
     {
     }
     
@@ -15,7 +20,7 @@ public class Vampire : Enemy
         Console.WriteLine($"{Name} кусает {target.Name}!");
         target.TakeDamage(Damage);
         
-        int healAmount = Damage / 2;
+        int healAmount = Damage / LifeStealDivisor;
         Health += healAmount;
         if (Health > MaxHealth) Health = MaxHealth;
         

@@ -2,7 +2,12 @@ namespace GameProject.Entities;
 
 public class Dragon : Enemy
 {
-    public Dragon() : base("Дракон", 100, 15, 80)
+    private const int DragonHealth = 100;
+    private const int DragonDamage = 15;
+    private const int DragonExpReward = 80;
+    private const int AdditionalFireDamage = 5;
+    
+    public Dragon() : base("Дракон", DragonHealth, DragonDamage, DragonExpReward)
     {
     }
     
@@ -15,7 +20,7 @@ public class Dragon : Enemy
         Console.WriteLine($"{Name} извергает пламя на {target.Name}!");
         target.TakeDamage(Damage);
         Console.WriteLine($"Огонь дракона наносит дополнительный урон!");
-        target.TakeDamage(5);
+        target.TakeDamage(AdditionalFireDamage);
     }
     
     public override string GetDescription()
