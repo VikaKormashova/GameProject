@@ -12,6 +12,11 @@ public class Ghost : Enemy
     {
     }
     
+    public Ghost(Ghost other) : base(other)
+    {
+        _random = new Random();
+    }
+    
     public override void Attack(Player target)
     {
         if (_random.Next(100) < DodgeChancePercent)
@@ -33,10 +38,5 @@ public class Ghost : Enemy
     public override Enemy Clone()
     {
         return new Ghost(this);
-    }
-    
-    private Ghost(Ghost other) : base(other)
-    {
-        _random = new Random();
     }
 }

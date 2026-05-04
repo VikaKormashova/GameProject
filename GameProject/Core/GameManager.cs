@@ -2,6 +2,7 @@ using GameProject.Entities;
 using GameProject.Factories;
 using GameProject.Weapons;
 using GameProject.Combat;
+using GameProject.Strategies;
 
 namespace GameProject.Core;
 
@@ -66,6 +67,7 @@ public class GameManager
         DemonstrateFactoryMethod();
         DemonstratePrototype();
         DemonstrateFacade();
+        DemonstrateStrategyPattern();
         
         StartGameLoop();
     }
@@ -144,6 +146,34 @@ public class GameManager
         
         Console.WriteLine($"Всего врагов: {ActiveEnemies.Count}\n");
         Console.WriteLine("=== БОЙ НАЧАЛСЯ! ===\n");
+    }
+    
+    private void DemonstrateStrategyPattern()
+    {
+        Console.WriteLine("=== 4. СТРАТЕГИЯ (ПОВЕДЕНИЕ ВРАГОВ) ===\n");
+        
+        var dragon = new Dragon();
+        Console.WriteLine($"Создан враг для демонстрации стратегий: {dragon.Name}\n");
+        
+        Console.WriteLine("--- Агрессивная стратегия ---");
+        dragon.SetBehavior(new AggressiveBehavior());
+        dragon.Act(CurrentPlayer!);
+        
+        Console.WriteLine("\n--- Дальнобойная стратегия ---");
+        dragon.SetBehavior(new RangedBehavior());
+        dragon.Act(CurrentPlayer!);
+        
+        Console.WriteLine("\n--- Трусливая стратегия (при низком здоровье) ---");
+        dragon.TakeDamage(70);
+        Console.WriteLine($"Здоровье дракона: {dragon.Health}/{dragon.MaxHealth}");
+        dragon.SetBehavior(new FleeBehavior());
+        dragon.Act(CurrentPlayer!);
+        
+        Console.WriteLine("\n--- Защитная стратегия ---");
+        dragon.SetBehavior(new DefensiveBehavior());
+        dragon.Act(CurrentPlayer!);
+        
+        Console.WriteLine("\n=== СТРАТЕГИЯ ЗАВЕРШЕНА ===\n");
     }
     
     private void StartGameLoop()
