@@ -1,11 +1,16 @@
 using GameProject.Core;
 using GameProject.Entities;
 using GameProject.UI;
+using GameProject.Commands;
 
 namespace GameProject.States;
 
 public class GameState : IGameState
 {
+    private const int DamageAmount = 10;
+    private const int ExperienceAmount = 50;
+    private const int AttackDamage = 15;
+    
     private ConsoleHUD? _hud;
     private bool _initialized;
     
@@ -16,6 +21,7 @@ public class GameState : IGameState
             var gameManager = GameManager.Instance;
             gameManager.StartNewGame("Hero");
             gameManager.CreateTestEnemies();
+            gameManager.SetupDefaultBindings();
             _hud = new ConsoleHUD(gameManager.CurrentPlayer!);
             _initialized = true;
         }
@@ -44,38 +50,15 @@ public class GameState : IGameState
             return new PauseState();
         }
         
-        if (key == ConsoleKey.D && gameManager.CurrentPlayer != null)
+        // Обработка через InputManager (Command pattern)
+        if (key == ConsoleKey.D || key == ConsoleKey.E)
         {
-            gameManager.CurrentPlayer.TakeDamage(10);
+            gameManager.InputManager.HandleInput(key);
             _hud?.Render();
             
-            if (!gameManager.CurrentPlayer.IsAlive())
+            if (gameManager.CurrentPlayer != null && !gameManager.CurrentPlayer.IsAlive())
             {
                 return new GameOverState();
-            }
-        }
-        
-        if (key == ConsoleKey.E && gameManager.CurrentPlayer != null)
-        {
-            gameManager.CurrentPlayer.GainExperience(50);
-            _hud?.Render();
-        }
-        
-        if (key == ConsoleKey.Spacebar && gameManager.ActiveEnemies.Count > 0 && gameManager.CurrentPlayer != null && gameManager.CurrentPlayer.IsAlive())
-        {
-            var target = gameManager.ActiveEnemies[0];
-            target.TakeDamage(15);
-            
-            if (!target.IsAlive())
-            {
-                gameManager.ActiveEnemies.RemoveAt(0);
-                gameManager.CurrentPlayer.GainExperience(target.ExperienceReward);
-                _hud?.Render();
-                
-                if (gameManager.ActiveEnemies.Count == 0)
-                {
-                    Console.WriteLine("\n✨ ПОБЕДА! Все враги повержены! ✨\n");
-                }
             }
         }
         
@@ -96,9 +79,10 @@ public class GameState : IGameState
     {
         Console.WriteLine("─────────────────────────────────────────");
         Console.WriteLine("⌨️  Управление:");
-        Console.WriteLine("  D - получить урон");
-        Console.WriteLine("  E - получить опыт");
-        Console.WriteLine("  SPACE - атаковать врага");
+        Console.WriteLine("  WASD - перемещение");
+        Console.WriteLine("  SPACE - атака");
+        Console.WriteLine("  H - использовать зелье");
+        Console.WriteLine("  Z - отменить последнее действие");
         Console.WriteLine("  ESC - пауза");
         Console.WriteLine("─────────────────────────────────────────");
     }

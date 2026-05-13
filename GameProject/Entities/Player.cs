@@ -7,9 +7,17 @@ public class Player : Entity
     private const int BaseExperienceForLevelUp = 100;
     private const int ExperienceIncreasePerLevel = 25;
     private const int HealthIncreasePerLevel = 10;
+    private const int StartingHealth = 100;
+    private const int StartingLevel = 1;
+    private const int StartingExperience = 0;
+    private const int StartingPositionX = 0;
+    private const int StartingPositionY = 0;
     
     private int _health;
     private int _experience;
+    
+    public int PositionX { get; private set; }
+    public int PositionY { get; private set; }
     
     public int Experience
     {
@@ -30,11 +38,13 @@ public class Player : Entity
     public event Action<int>? OnLevelUp;
     public event Action? OnPlayerDeath;
     
-    public Player(string name) : base(name, 100)
+    public Player(string name) : base(name, StartingHealth)
     {
-        _experience = 0;
-        Level = 1;
+        _experience = StartingExperience;
+        Level = StartingLevel;
         ExperienceToNextLevel = BaseExperienceForLevelUp;
+        PositionX = StartingPositionX;
+        PositionY = StartingPositionY;
     }
     
     public override int Health
@@ -53,6 +63,13 @@ public class Player : Entity
                 OnPlayerDeath?.Invoke();
             }
         }
+    }
+    
+    public void Move(int deltaX, int deltaY)
+    {
+        PositionX += deltaX;
+        PositionY += deltaY;
+        Console.WriteLine($"Позиция: ({PositionX}, {PositionY})");
     }
     
     public void GainExperience(int amount)

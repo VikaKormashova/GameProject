@@ -1,6 +1,7 @@
 using GameProject.Entities;
 using GameProject.States;
 using GameProject.Strategies;
+using GameProject.Commands;
 
 namespace GameProject.Core;
 
@@ -13,14 +14,17 @@ public class GameManager
     private static readonly object _lockObject = new object();
     
     private IGameState? _currentState;
+    private InputManager _inputManager;
     
     public Player? CurrentPlayer { get; private set; }
     public List<Enemy> ActiveEnemies { get; private set; }
     public bool IsInCombat { get; set; }
+    public InputManager InputManager => _inputManager;
     
     private GameManager()
     {
         ActiveEnemies = new List<Enemy>();
+        _inputManager = new InputManager();
     }
     
     public static GameManager Instance
@@ -48,29 +52,80 @@ public class GameManager
         _currentState.Enter();
     }
     
+    public void SetupDefaultBindings()
+    {
+        if (CurrentPlayer == null) return;
+        
+        _inputManager.BindKey(ConsoleKey.W, new MoveCommand(CurrentPlayer, 0, -1));
+        _inputManager.BindKey(ConsoleKey.S, new MoveCommand(CurrentPlayer, 0, 1));
+        _inputManager.BindKey(ConsoleKey.A, new MoveCommand(CurrentPlayer, -1, 0));
+        _inputManager.BindKey(ConsoleKey.D, new MoveCommand(CurrentPlayer, 1, 0));
+        
+        if (ActiveEnemies.Count > 0)
+        {
+            _inputManager.BindKey(ConsoleKey.Spacebar, new AttackCommand(CurrentPlayer, ActiveEnemies[0]));
+        }
+        
+        _inputManager.BindKey(ConsoleKey.H, new UsePotionCommand(CurrentPlayer, 30));
+        _inputManager.BindKey(ConsoleKey.Z, new NullCommand());
+    }
+    
+    public void RemapKey(ConsoleKey oldKey, ConsoleKey newKey)
+    {
+        var bindings = _inputManager.GetType()
+            .GetField("_keyBindings", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
+            ?.GetValue(_inputManager) as Dictionary<ConsoleKey, ICommand>;
+        
+        if (bindings != null && bindings.TryGetValue(oldKey, out ICommand? command))
+        {
+            _inputManager.UnbindKey(oldKey);
+            _inputManager.BindKey(newKey, command);
+            Console.WriteLine($"\n🔧 Переназначено: {oldKey} → {newKey}\n");
+        }
+    }
+    
     public void Run()
     {
         ChangeState(new MenuState());
         
         while (true)
         {
-            if (Console.KeyAvailable)
+            try
             {
-                var keyInfo = Console.ReadKey(true);
-                var newState = _currentState?.HandleInput(keyInfo.Key);
-                if (newState != null)
+                if (Console.KeyAvailable)
                 {
-                    ChangeState(newState);
+                    var keyInfo = Console.ReadKey(true);
+                    
+                    if (keyInfo.Key == ConsoleKey.Escape)
+                    {
+                        var newState = _currentState?.HandleInput(keyInfo.Key);
+                        if (newState != null) ChangeState(newState);
+                    }
+                    else if (_currentState is GameState)
+                    {
+                        _inputManager.HandleInput(keyInfo.Key);
+                    }
+                    else
+                    {
+                        var newState = _currentState?.HandleInput(keyInfo.Key);
+                        if (newState != null) ChangeState(newState);
+                    }
                 }
+                
+                var updatedState = _currentState?.Update(this);
+                if (updatedState != null)
+                {
+                    ChangeState(updatedState);
+                }
+                
+                Thread.Sleep(GameLoopDelayMilliseconds);
             }
-            
-            var updatedState = _currentState?.Update(this);
-            if (updatedState != null)
+            catch (Exception ex)
             {
-                ChangeState(updatedState);
+                Console.WriteLine($"\n⚠️ Ошибка: {ex.Message}");
+                Console.WriteLine("Нажмите любую клавишу для продолжения...");
+                Console.ReadKey(true);
             }
-            
-            Thread.Sleep(GameLoopDelayMilliseconds);
         }
     }
     

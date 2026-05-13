@@ -4,6 +4,8 @@ namespace GameProject.Entities;
 
 public abstract class Enemy
 {
+    public static event Action<Enemy>? OnAnyEnemyDied;
+    
     public string Name { get; protected set; }
     public int Health { get; protected set; }
     public int MaxHealth { get; protected set; }
@@ -43,7 +45,6 @@ public abstract class Enemy
             Console.WriteLine($"{Name} в замешательстве и ничего не делает!");
             return;
         }
-        
         _behavior.Execute(this, player);
     }
     
@@ -54,6 +55,17 @@ public abstract class Enemy
     {
         Health -= amount;
         if (Health < 0) Health = 0;
+        
+        if (!IsAlive())
+        {
+            OnAnyEnemyDied?.Invoke(this);
+        }
+    }
+    
+    public void Heal(int amount)
+    {
+        Health += amount;
+        if (Health > MaxHealth) Health = MaxHealth;
     }
     
     public bool IsAlive() => Health > 0;
